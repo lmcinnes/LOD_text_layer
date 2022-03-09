@@ -1,7 +1,8 @@
-Custom layers for pydeck
-========================
+Level of Detail layer for pydeck
+================================
 
-This repo is an example of how to create a custom deck.gl layer for use in pydeck.
+This repo is a work in progress to provide a custom deck.gl layer for use in pydeck that allows for a 
+text layer that resolves varying levels of detail on zooming.
 
 To get started with this example repo, install the dependencies:
 
@@ -15,7 +16,7 @@ pip install -r pydeck_example/requirements.txt
 Then execute the following to a pydeck script and serve the JavaScript bundle:
 
 ```bash
-python pydeck_example/labeled_geojson_layer.py
+python pydeck_example/lod_text_layer.py
 webpack serve --progress
 ```
 

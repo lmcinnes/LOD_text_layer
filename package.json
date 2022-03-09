@@ -1,10 +1,10 @@
 {
-    "name": "pydeck-custom-layer-demo",
+    "name": "pydeck-lod-text-layer",
     "version": "0.0.2-alpha.1",
-    "description": "A demo custom layer for the pydeck Python library",
+    "description": "A custom level of detail text layer for the pydeck Python library",
     "main": "dist/bundle.js",
     "license": "MIT",
-    "repository": "https://github.com/ajduberstein/pydeck_custom_layer",
+    "repository": "https://github.com/lmcinnes/pydeck_custom_layer",
     "unpkg": "dist/bundle.js",
     "dependencies": {
         "@deck.gl/core": "^8.0.12",
@@ -13,7 +13,7 @@
     },
     "devDependencies": {
         "webpack": "^4.42.1",
-        "webpack-cli": "^4.2.0",
+        "webpack-cli": "^4.9.2",
         "webpack-dev-server": "^3.11.0"
     },
     "scripts": {

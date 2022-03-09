@@ -18,10 +18,10 @@
  *
  */ 
 
-import { LabeledGeoJsonLayer } from "./labeled-geojson-layer";
+import { LODTextLayer } from "./lod-text-layer";
 
 const _global = typeof window === 'undefined' ? global : window;
-_global.LabeledGeoJsonLayerLibrary = {LabeledGeoJsonLayer};
+_global.LODTextLayerLibrary = {LODTextLayer};
 
-export default LabeledGeoJsonLayerLibrary;
+export default LODTextLayerLibrary;
 

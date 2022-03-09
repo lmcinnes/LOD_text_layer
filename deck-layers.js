@@ -6,6 +6,6 @@ if (deck === undefined) {
   throw new Error('deck.gl is not in global scope');
 }
 
-const {CompositeLayer, GeoJsonLayer, TextLayer} = deck;
+const {CompositeLayer, TextLayer} = deck;
 
-export {CompositeLayer, GeoJsonLayer, TextLayer};
+export {CompositeLayer, TextLayer};
