@@ -1,1 +1,5 @@
 pydeck
+pandas
+numpy
+scikit-learn
+
