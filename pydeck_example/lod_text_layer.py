@@ -18,7 +18,7 @@ base_df = pd.DataFrame(
     {
         "x": base_data.T[0],
         "y": base_data.T[1],
-        "level": np.zeros(500, dtype=np.int32),
+        "label_level": np.zeros(500, dtype=np.int32),
         "label": [f"point-{i}" for i in range(500)],
     }
 )
@@ -30,7 +30,7 @@ for i, n_clusters in enumerate(n_clusters_per_level, 1):
         {
             "x": level_data.T[0],
             "y": level_data.T[1],
-            "level": np.full(n_clusters, i, dtype=np.int32),
+            "label_level": np.full(n_clusters, i, dtype=np.int32),
             "label": [f"level {i}\ncluster {j}" for j in range(n_clusters)],
         }
     )
@@ -45,6 +45,7 @@ custom_layer = pydeck.Layer(
     billboard=False,
     get_position=["x", "y"],
     get_label="label",
+    get_level="label_level",
     get_label_size=2048,
     get_label_color=[24, 24, 24],
     label_size_units='"meters"',
@@ -59,9 +60,9 @@ point_layer = pydeck.Layer(
     coordinate_system=None,
     coordinate_origin=[0, 0],
     get_position=["x", "y"],
-    get_radius=2048,
+    get_radius=1024,
     radius_min_pixels=8,
-    radius_max_pixels=128,
+    radius_max_pixels=16,
     get_color=[255, 64, 8, 128],
 )
 

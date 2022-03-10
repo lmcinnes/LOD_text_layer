@@ -4,7 +4,10 @@ import * as turf from "@turf/turf";
 import {CompositeLayer, TextLayer} from './deck-layers';
 
 const defaultProps = {
+  // Position for text layers
   getPosition: {type: "accessor", value: p => [p.x, p.y]},
+  // Text level of detail
+  getLevel: {type: "accessor", value: x => x.level },
   // Label for each feature
   getLabel: { type: "accessor", value: x => x.text },
   // Label size for each feature
@@ -23,21 +26,20 @@ const defaultProps = {
 
 class LODTextLayer extends CompositeLayer {
   updateState({ changeFlags }) {
-    const { data } = this.props;
+    const { data, getLevel } = this.props;
     if (changeFlags.dataChanged && data) {
-      const maxLevel = 6; // TODO: Calculate this is a max properly
+      const numLevels = Math.max.apply(null, data.map(getLevel));
       var levelData = []
-      for (var i=0; i <= maxLevel; i++) {
-        const level = data.filter(x => x.level == i)//.map((x, y, label) => { position: [x, y], label})
-        //const mapped_level = level.map(( x, y, label ) => this.getSubLayerRow(( position: [x, y] ));
+      for (var i=0; i <= numLevels; i++) {
+        const level = data.filter(x => getLevel(x) == i);
         levelData.push(level);
       }
-
-      this.setState({ levelData });
+      this.setState({ levelData, numLevels });
     }
   }
   renderLayers() {
     const {
+      getPosition,
       getLabel,
       getLabelSize,
       getLabelColor,
@@ -47,16 +49,17 @@ class LODTextLayer extends CompositeLayer {
       fontFamily,
       zoomThresh,
     } = this.props;
+    const {levelData, numLevels} = this.state;
     var result = [];
-    for (var i=0; i<=6; i++) { // TODO: Should be maxLevel
+    for (var i=0; i<=numLevels; i++) {
       result.push(
           new TextLayer(this.getSubLayerProps({ id: "text" }), {
-            data: this.state.levelData[i],
+            data: levelData[i],
             id: "label-level-" + i,
             billboard: false,
             sizeUnits: labelSizeUnits,
             getColor: [24 * i, 24 * i, 24 * i], // TODO: Take colors at levels
-            getPosition: d => [d.x, d.y],
+            getPosition: this.getSubLayerAccessor(getPosition), // d => [d.x, d.y],
             getText: this.getSubLayerAccessor(getLabel),
             getSize: this.getSubLayerAccessor(getLabelSize) * (i + 1)**2,
           })
@@ -65,16 +68,18 @@ class LODTextLayer extends CompositeLayer {
     return result;
   }
   filterSubLayer({layer, viewport}) {
+    const { zoomThresh } = this.props;
+    const { numLevels } = this.state;
     if (viewport.zoom > this.props.zoomThresh) {
         return layer.id === 'label-level-0'
     } else {
-        for (var i=6; i >= 0 ; i--) { // TODO: this should be maxLevel
+        for (var i=numLevels; i >= 0 ; i--) {
             if (viewport.zoom <= this.props.zoomThresh - i) { // TODO: calculate zoom thresholds from min and max
                 return layer.id === 'label-level-' + i || layer.id == 'label-level-' + (i+1);
             }
         }
     }
-    return layer.id === 'label-level-6'; // TODO: this should be maxLevel
+    return layer.id === 'label-level-' + numLevels;
   }
 }
 
