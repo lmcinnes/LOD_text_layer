@@ -11,7 +11,7 @@ const defaultProps = {
   // Label for each feature
   getLabel: { type: "accessor", value: x => x.text },
   // Label size for each feature
-  getLabelSize: { type: "accessor", value: 32 },
+  getLabelSize: { type: "accessor", value: x => x.label_size },
   // Label color for each feature
   getLabelColor: { type: "accessor", value: [0, 0, 0, 255] },
   // Label always facing the camera

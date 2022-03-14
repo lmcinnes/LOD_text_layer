@@ -20,6 +20,7 @@ base_df = pd.DataFrame(
         "y": base_data.T[1],
         "label_level": np.zeros(500, dtype=np.int32),
         "label": [f"point-{i}" for i in range(500)],
+        "label_size": np.full(500, 2048, dtype=np.int32)
     }
 )
 dataframes = [base_df]
@@ -32,6 +33,7 @@ for i, n_clusters in enumerate(n_clusters_per_level, 1):
             "y": level_data.T[1],
             "label_level": np.full(n_clusters, i, dtype=np.int32),
             "label": [f"level {i}\ncluster {j}" for j in range(n_clusters)],
+            "label_size": np.full(n_clusters, 2048 * (i+1)**2, dtype=np.int32)
         }
     )
     dataframes.append(level_df)
@@ -45,13 +47,14 @@ custom_layer = pydeck.Layer(
     get_position=["x", "y"],
     get_label="label",
     get_level="label_level",
-    get_label_size=2048,
+    get_label_size="label_size",
     get_label_color=[24, 24, 24],
     label_size_units='"meters"',
     line_width_min_pixels=1,
     get_text_anchor=pydeck.types.String("middle"),
     get_alignment_baseline=pydeck.types.String("center"),
-    zoom_thresh=9,
+    maxZoom=8,
+    minZoom=2,
 )
 point_layer = pydeck.Layer(
     "ScatterplotLayer",
