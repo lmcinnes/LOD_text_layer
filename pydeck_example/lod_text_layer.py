@@ -55,6 +55,7 @@ custom_layer = pydeck.Layer(
     get_alignment_baseline=pydeck.types.String("center"),
     maxZoom=8,
     minZoom=2,
+    fadeRate=0.75,
 )
 point_layer = pydeck.Layer(
     "ScatterplotLayer",

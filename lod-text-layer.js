@@ -27,9 +27,14 @@ const defaultProps = {
   // Zoom threshold
   minZoom: 5.2,
   maxZoom: 8.5,
+  fadeRate: 0.5,
 };
 
 class LODTextLayer extends CompositeLayer {
+
+  shouldUpdateState({ changeFlags }) {
+      return changeFlags.somethingChanged;
+  }
   updateState({ changeFlags }) {
     const { data, getLevel } = this.props;
     if (changeFlags.dataChanged && data) {
@@ -56,10 +61,25 @@ class LODTextLayer extends CompositeLayer {
       outlineWidth,
       outlineMaxPixels,
       outlineColor,
+      minZoom,
+      maxZoom,
+      fadeRate,
     } = this.props;
     const {levelData, numLevels} = this.state;
+    const zoom = this.context.viewport.zoom;
+    const zoomRatio = 1.0 - ((zoom - minZoom) / (maxZoom - minZoom));
+    const levelRatioWidth = 1.0 / numLevels;
     var result = [];
+    console.log(zoomRatio);
     for (var i=0; i<=numLevels; i++) {
+      var levelOpacity = 1.0;
+      if ((zoomRatio > -levelRatioWidth) && (zoomRatio < 1.0 - levelRatioWidth)) {
+          if (Math.abs(zoomRatio - (i / numLevels)) < 2 * fadeRate * levelRatioWidth) {
+            levelOpacity = Math.abs(zoomRatio - (i / numLevels)) / (2 * fadeRate * levelRatioWidth);
+          } else if (Math.abs(zoomRatio - ((i - 2) / numLevels)) < 2 * fadeRate * levelRatioWidth) {
+            levelOpacity = Math.abs(zoomRatio - ((i - 2) / numLevels)) / (2 * fadeRate * levelRatioWidth);
+          }
+      }
       result.push(
           new TextLayer(this.getSubLayerProps({ id: "text" }), {
             data: levelData[i],
@@ -73,8 +93,9 @@ class LODTextLayer extends CompositeLayer {
             fontFamily: fontFamily,
             fontSettings: fontSettings,
             outlineWidth: 0.33,
-	    outlineMaxPixels: 0.01,
-	    outlineColor: [254, 254, 254, 255],
+            outlineMaxPixels: 0.01,
+            outlineColor: [254, 254, 254, 255],
+            opacity: levelOpacity,
           })
       );
     }
