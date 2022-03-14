@@ -60,7 +60,6 @@ class LODTextLayer extends CompositeLayer {
     const zoomRatio = 1.0 - ((zoom - minZoom) / (maxZoom - minZoom));
     const levelRatioWidth = 1.0 / numLevels;
     var result = [];
-    console.log(zoomRatio);
     for (var i=0; i<=numLevels; i++) {
       var levelOpacity = 1.0;
       if ((zoomRatio > -levelRatioWidth) && (zoomRatio < 1.0 - levelRatioWidth)) {
