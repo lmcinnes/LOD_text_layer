@@ -4,29 +4,13 @@ import * as turf from "@turf/turf";
 import {CompositeLayer, TextLayer} from './deck-layers';
 
 const defaultProps = {
-  // Position for text layers
-  getPosition: {type: "accessor", value: p => [p.x, p.y]},
+  ...TextLayer.defaultProps,
   // Text level of detail
   getLevel: {type: "accessor", value: x => x.level },
-  // Label for each feature
-  getLabel: { type: "accessor", value: x => x.text },
-  // Label size for each feature
-  getLabelSize: { type: "accessor", value: x => x.label_size },
-  // Label color for each feature
-  getLabelColor: { type: "accessor", value: [0, 0, 0, 255] },
-  // Label always facing the camera
-  billboard: true,
-  // Label size units
-  labelSizeUnits: "pixels",
-  // Label background color
-  labelBackground: { type: "color", value: null, optional: true },
-  // Label font
-  fontFamily: "Monaco, monospace",
-  // Label font settings
-  fontSettings: { sdf: true, fontSize: 256, radius: 24 },
-  // Zoom threshold
+  // Zoom thresholds
   minZoom: 5.2,
   maxZoom: 8.5,
+  // Rate at which to fade labels on transition (fraction of level width)
   fadeRate: 0.5,
 };
 
@@ -50,16 +34,24 @@ class LODTextLayer extends CompositeLayer {
   renderLayers() {
     const {
       getPosition,
-      getLabel,
-      getLabelSize,
-      getLabelColor,
-      labelSizeUnits,
-      labelBackground,
+      getText,
+      getSize,
+      getColor,
+      getAngle,
+      getTextAnchor,
+      getAlignmentBaseline,
+      sizeScale,
+      sizeUnits,
       billboard,
+      background,
+      backgroundPadding,
+      sizeMinPixels,
+      sizeMaxPixels,
       fontFamily,
+      fontWeight,
+      lineHeight,
       fontSettings,
       outlineWidth,
-      outlineMaxPixels,
       outlineColor,
       minZoom,
       maxZoom,
@@ -83,18 +75,27 @@ class LODTextLayer extends CompositeLayer {
       result.push(
           new TextLayer(this.getSubLayerProps({ id: "text" }), {
             data: levelData[i],
-            id: "label-level-" + i,
-            billboard: true,
-            sizeUnits: labelSizeUnits,
-            getColor: [24 * i, 24 * i, 24 * i], // TODO: Take colors at levels
-            getPosition: this.getSubLayerAccessor(getPosition), // d => [d.x, d.y],
-            getText: this.getSubLayerAccessor(getLabel),
-            getSize: this.getSubLayerAccessor(getLabelSize), //0.05 * 2**(0.75*(i)),
+            id: this.id + "label-level-" + i,
+            billboard: billboard,
+            sizeScale: sizeScale,
+            sizeUnits: sizeUnits,
+            sizeMinPixels: sizeMinPixels,
+            sizeMaxPixels: sizeMaxPixels,
+            background: background,
+            backgroundPadding: backgroundPadding,
+            getColor: this.getSubLayerAccessor(getColor),
+            getPosition: this.getSubLayerAccessor(getPosition),
+            getText: this.getSubLayerAccessor(getText),
+            getSize: this.getSubLayerAccessor(getSize),
+            getAngle: this.getSubLayerAccessor(getAngle),
+            getAlignmentBaseline: this.getSubLayerAccessor(getAlignmentBaseline),
+            getTextAnchor: this.getSubLayerAccessor(getTextAnchor),
             fontFamily: fontFamily,
+            fontWeight: fontWeight,
+            lineHeight: lineHeight,
             fontSettings: fontSettings,
-            outlineWidth: 0.33,
-            outlineMaxPixels: 0.01,
-            outlineColor: [254, 254, 254, 255],
+            outlineWidth: outlineWidth,
+            outlineColor: outlineColor,
             opacity: levelOpacity,
           })
       );
@@ -106,19 +107,20 @@ class LODTextLayer extends CompositeLayer {
     const { numLevels } = this.state;
     
     const zoomRatio = 1.0 - ((viewport.zoom - minZoom) / (maxZoom - minZoom));
+    const levelRatioWidth = 1.0 / numLevels;
     
-    if (zoomRatio < 0.0) {
-        return layer.id === 'label-level-0';
+    if (zoomRatio < -levelRatioWidth) {
+        return layer.id === this.id + 'label-level-0';
     } else if (zoomRatio > 1.0) {
-    	return layer.id === 'label-level-' + numLevels;
+    	return layer.id === this.id + 'label-level-' + numLevels;
     } else {
         for (var i=0; i <= numLevels ; i++) {
             if (zoomRatio <= (i / numLevels)) {
-                return layer.id === 'label-level-' + i || layer.id == 'label-level-' + (i+1);
+                return layer.id === this.id + 'label-level-' + i || layer.id == this.id + 'label-level-' + (i+1);
             }
         }
     }
-    return layer.id === 'label-level-' + numLevels;
+    return layer.id === this.id + 'label-level-' + numLevels;
   }
 }
 
