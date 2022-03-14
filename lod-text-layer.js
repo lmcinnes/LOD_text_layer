@@ -21,7 +21,12 @@ const defaultProps = {
   // Label background color
   labelBackground: { type: "color", value: null, optional: true },
   // Label font
-  fontFamily: "Monaco, monospace"
+  fontFamily: "Monaco, monospace",
+  // Label font settings
+  fontSettings: { sdf: true, fontSize: 256, radius: 24 },
+  // Zoom threshold
+  minZoom: 5.2,
+  maxZoom: 8.5,
 };
 
 class LODTextLayer extends CompositeLayer {
@@ -47,7 +52,10 @@ class LODTextLayer extends CompositeLayer {
       labelBackground,
       billboard,
       fontFamily,
-      zoomThresh,
+      fontSettings,
+      outlineWidth,
+      outlineMaxPixels,
+      outlineColor,
     } = this.props;
     const {levelData, numLevels} = this.state;
     var result = [];
@@ -56,25 +64,35 @@ class LODTextLayer extends CompositeLayer {
           new TextLayer(this.getSubLayerProps({ id: "text" }), {
             data: levelData[i],
             id: "label-level-" + i,
-            billboard: false,
+            billboard: true,
             sizeUnits: labelSizeUnits,
             getColor: [24 * i, 24 * i, 24 * i], // TODO: Take colors at levels
             getPosition: this.getSubLayerAccessor(getPosition), // d => [d.x, d.y],
             getText: this.getSubLayerAccessor(getLabel),
-            getSize: this.getSubLayerAccessor(getLabelSize) * (i + 1)**2,
+            getSize: this.getSubLayerAccessor(getLabelSize), //0.05 * 2**(0.75*(i)),
+            fontFamily: fontFamily,
+            fontSettings: fontSettings,
+            outlineWidth: 0.33,
+	    outlineMaxPixels: 0.01,
+	    outlineColor: [254, 254, 254, 255],
           })
       );
     }
     return result;
   }
   filterSubLayer({layer, viewport}) {
-    const { zoomThresh } = this.props;
+    const { minZoom, maxZoom } = this.props;
     const { numLevels } = this.state;
-    if (viewport.zoom > this.props.zoomThresh) {
-        return layer.id === 'label-level-0'
+    
+    const zoomRatio = 1.0 - ((viewport.zoom - minZoom) / (maxZoom - minZoom));
+    
+    if (zoomRatio < 0.0) {
+        return layer.id === 'label-level-0';
+    } else if (zoomRatio > 1.0) {
+    	return layer.id === 'label-level-' + numLevels;
     } else {
-        for (var i=numLevels; i >= 0 ; i--) {
-            if (viewport.zoom <= this.props.zoomThresh - i) { // TODO: calculate zoom thresholds from min and max
+        for (var i=0; i <= numLevels ; i++) {
+            if (zoomRatio <= (i / numLevels)) {
                 return layer.id === 'label-level-' + i || layer.id == 'label-level-' + (i+1);
             }
         }

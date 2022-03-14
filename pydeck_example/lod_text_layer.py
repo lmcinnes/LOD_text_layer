@@ -41,7 +41,6 @@ data = pd.concat(dataframes)
 custom_layer = pydeck.Layer(
     "LODTextLayer",
     data=data,
-    filled=False,
     billboard=False,
     get_position=["x", "y"],
     get_label="label",
