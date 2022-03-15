@@ -1,6 +1,6 @@
 {
     "name": "pydeck-lod-text-layer",
-    "version": "0.0.2-alpha.1",
+    "version": "0.0.2",
     "description": "A custom level of detail text layer for the pydeck Python library",
     "main": "dist/bundle.js",
     "license": "MIT",
