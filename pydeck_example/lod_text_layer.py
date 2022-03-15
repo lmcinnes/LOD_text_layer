@@ -8,7 +8,8 @@ from sklearn.datasets import make_blobs
 pydeck.settings.custom_libraries = [
     {
         "libraryName": "LODTextLayerLibrary",
-        "resourceUri": "http://localhost:8080/dist/bundle.js",
+        "resourceUri": "https://unpkg.com/pydeck-lod-text-layer/dist/bundle.js",
+        # "resourceUri": "http://localhost:8080/dist/bundle.js",
     }
 ]
 
@@ -52,9 +53,10 @@ custom_layer = pydeck.Layer(
     get_size="label_size",
     get_color="label_color",
     size_units='"meters"',
+    size_scale=1,
     line_width_min_pixels=1,
     line_height=0.5,
-    font_family="arial",
+    # font_family="arial",
     get_text_anchor=pydeck.types.String("middle"),
     get_alignment_baseline=pydeck.types.String("center"),
     maxZoom=8,
